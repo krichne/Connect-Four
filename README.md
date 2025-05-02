@@ -2,7 +2,7 @@
 
 A real-time multiplayer Connect Four game built with Node.js, Express, WebSockets, and Vue.js.
 
-![Connect Four Game](https://raw.githubusercontent.com/username/connect-four-multiplayer/main/screenshot.png)
+https://jwk-connect4-3410dc68574f.herokuapp.com/
 
 ## Features
 
