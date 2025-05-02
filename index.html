@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Connect Four Multiplayer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+  <meta name="description" content="Play Connect Four online with friends in real-time">
+</head>
+<body>
+  <div id="app">
+    <div v-if="stage==='nick'" class="join">
+      <h2>Connect Four</h2>
+      <p>Enter a nickname to start playing</p>
+      <input
+        v-model="nickname"
+        class="nickname-input"
+        placeholder="Enter a nickname"
+        @keyup.enter="setNick"
+      />
+      <button @click="setNick" class="enter-button">
+        Enter Lobby
+      </button>
+      <p v-if="nickError" style="color:red; margin-top: .5rem">
+        {{ nickError }}
+      </p>
+    </div>
+
+    <div v-else-if="stage==='lobby'" class="lobby">
+      <h3>Connect Four - Lobby</h3>
+      <p v-if="users.length === 0">
+        No other players online right now. Wait for someone to join or invite a friend!
+      </p>
+      <p v-else>Choose a player to challenge:</p>
+      <ul class="user-list">
+        <li
+          v-for="u in users"
+          :key="u"
+          class="user-item"
+        >
+          <span>{{ u }}</span>
+          <button
+            @click="sendChallenge(u)"
+            class="challenge-button"
+          >
+            Challenge
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div v-else-if="stage==='challenge'" class="challenge">
+      <h3>Challenge Request</h3>
+      <p>
+        <strong>{{ incoming.from }}</strong> wants to play Connect Four with you!
+      </p>
+      <div class="challenge-buttons">
+        <button
+          @click="respondChallenge(true)"
+          class="accept-button"
+        >
+          Accept
+        </button>
+        <button
+          @click="respondChallenge(false)"
+          class="decline-button"
+        >
+          Decline
+        </button>
+      </div>
+    </div>
+
+    <div v-else-if="stage==='game'" class="game">
+      <div class="header">
+        <div class="title">Connect Four</div>
+        <div class="players-info">
+          <div class="player">You: <span :class="symbol === 'X' ? 'red-token' : 'blue-token'">{{ symbol === 'X' ? '🔴' : '🔵' }}</span></div>
+          <div class="player">{{ opponentName }}: <span :class="symbol === 'X' ? 'blue-token' : 'red-token'">{{ symbol === 'X' ? '🔵' : '🔴' }}</span></div>
+        </div>
+      </div>
+
+      <div class="status-bar" :class="{ 'your-turn': isMyTurn, 'finished': finished }">
+        {{ statusMessage }}
+      </div>
+
+      <div class="board-container" :class="{ 'your-turn': isMyTurn && !finished }">
+        <div class="board">
+          <div
+            v-for="(cell, i) in board"
+            :key="i"
+            :class="['cell', getCellClass(i)]"
+            @click="handleCellClick(i)"
+          >
+            <div class="token-container">
+              <span class="token" :class="{ 'red': cell === 'X', 'blue': cell === 'O' }">
+                {{ getToken(cell) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="help-text" v-if="isMyTurn">
+        Click any cell in a column to drop your piece
+      </div>
+
+      <div class="game-controls">
+        <button
+          v-if="finished"
+          class="play-again-button"
+          @click="reset"
+        >
+          Play Again
+        </button>
+        <button
+          class="lobby-button"
+          @click="returnToLobby"
+        >
+          Return to Lobby
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="main.js" defer></script>
+</body>
+</html>
